@@ -17,5 +17,6 @@
 bcftools mpileup -Ou -C50 -threads 12 -a "FORMAT/AD,FORMAT/DP,INFO/AD,FORMAT/DV,FORMAT/DP4,FORMAT/DPR,INFO/DPR" -f REFERENCE.fasta INDIVIDUAL1_sortedRGmark.bam INDIVIDUAL2_sortedRGmark.bam INDIVIDUAL..N_sortedRGmark.bam  | bcftools call --multiallelic-caller --variants-only --threads 12 -vm -Ov -o FILENAME.vcf
 
 # Filter VCF
-# -s: soft filter. will flag variants as low quality if PHRED score is <20 and depth <5
-bcftools filter FILENAME.vcf -s LowQual -e '%QUAL<20 || DP>5' -Ov -o FILENAME_Filtered.vcf
+vcftools --vcf RAWSNPs.vcf --max-missing 0.8 --maf 0.05 --min-meanDP 2 --max-meanDP 50 --minQ 20 --min-alleles 2 --max-alleles 2 --recode --out FilteredVCF.vcf
+bgzip FilteredVCF.vcf
+tabix Filtered.vcf.gz
