@@ -1,49 +1,42 @@
+##WGS analyses - GWAS in GEMMA
+##3/23/21
+
 ## prep beagle files - impute missing data
-java -Xmx96g -jar /programs/beagle4/beagle4.jar gt=Orioles_filtered_final_Hybrids.recode.vcf nthreads=20 out=Orioles_filtered_Hybrids_beagle_output impute=true
+java -Xmx96g -jar /programs/beagle4/beagle4.jar gt=FILENAME.vcf nthreads=20 out=NAME_output impute=true
 
 ## create PLINK files
-vcftools --gzvcf Orioles_filtered_Hybrids_beagle_output.vcf.gz --plink --out Orioles_filtered_Hybrids_outputPlinkformat
+vcftools --gzvcf NAME_output.vcf.gz --plink --out FILENAME_outputPlinkformat
 
 ## make .bed files
-/programs/plink-1.9-x86_64-beta5/plink --file Orioles_filtered_Hybrids_outputPlinkformat --make-bed --chr-set 28 --allow-extra-chr 0 --out Orioles_filtered_Hybrids_output_bed
+/programs/plink-1.9-x86_64-beta5/plink --file FILENAME_outputPlinkformat --make-bed --chr-set Number_SCAFFOLDS --allow-extra-chr 0 --out FILENAME_output_bed
 
-## enter phenotypic information into the .fam file 
-## KEEP TRACK OF COLUMN NUMBERS	
-# N1 = Supercillium
-# N2 = Forehead
-# N3 = Neck
-# N4 = Ears
-# N5 = Throat
-# N6 = Greater Coverts
-# N7 = Lesser Coverts
-# N8 = Tail Base
-# N9 = Tail Tip
+## enter phenotypic information into the .fam file
+## note: append these after the 0 0 0
+## note: change any missing data -9 to 0
+## KEEP TRACK OF COLUMN NUMBERS
+# N1 = Trait 1
+# N2 = ...
 
 ### RUN GEMMA ###
+#https://www.xzlab.org/software/GEMMAmanual.pdf
 
 ## GEMMA doesn't seem to like -9 as missing data value. Changing actual missing data to 0. Adding 1 to each plumage score (1-5 instead of 0-4)
 
 ## generate relatedness matrix
-gemma -bfile /workdir/jlw395/Orioles_filtered_Hybrids_output_bed -gk 1 -miss 1 -maf 0 -r2 1 -hwe 0 -o GEMMA_HZ
-## number of total SNPs/var = 11651297
-## number of analyzed SNPs = 11469909
+##
+##bfile: specify input plink binary file prefix (requires .fam, .bim, and .bed files)
+##gk: specify which type of kinship/relatedness matrix to generate (1 is default). 1 = centered matrix and 2 = standardized matrix
+##miss: specify missingness threshold (default 0.05)
+##maf: specify minor allele frequency threshold
+##r2: specify r2 threashold
+##hwe: specify HWE test p value threshold (default 0; no test)
+
+gemma -bfile /PATHtoFILENAME_output_bed -gk 1 -miss 1 -maf 0 -r2 1 -hwe 0 -o GEMMA_HZ
 
 ## run GEMMA: univariate linear models
-#supercillium
-gemma -bfile /workdir/jlw395/Orioles_filtered_Hybrids_output_bed -k /workdir/jlw395/output/GEMMA_HZ.cXX.txt -lmm 4 -n 1 -o GWAS_HZ_lmm_supercillium
-#Forehead
-gemma -bfile /workdir/jlw395/Orioles_filtered_Hybrids_output_bed -k /workdir/jlw395/output/GEMMA_HZ.cXX.txt -lmm 4 -n 2 -o GWAS_HZ_lmm_forehead
-#Neck
-gemma -bfile /workdir/jlw395/Orioles_filtered_Hybrids_output_bed -k /workdir/jlw395/output/GEMMA_HZ.cXX.txt -lmm 4 -n 3 -o GWAS_HZ_lmm_neck
-#Ears
-gemma -bfile /workdir/jlw395/Orioles_filtered_Hybrids_output_bed -k /workdir/jlw395/output/GEMMA_HZ.cXX.txt -lmm 4 -n 4 -o GWAS_HZ_lmm_ears
-#Throat
-gemma -bfile /workdir/jlw395/Orioles_filtered_Hybrids_output_bed -k /workdir/jlw395/output/GEMMA_HZ.cXX.txt -lmm 4 -n 5 -o GWAS_HZ_lmm_throat
-#Greater Coverts
-gemma -bfile /workdir/jlw395/Orioles_filtered_Hybrids_output_bed -k /workdir/jlw395/output/GEMMA_HZ.cXX.txt -lmm 4 -n 6 -o GWAS_HZ_lmm_greatercoverts
-#Lesser Coverts
-gemma -bfile /workdir/jlw395/Orioles_filtered_Hybrids_output_bed -k /workdir/jlw395/output/GEMMA_HZ.cXX.txt -lmm 4 -n 7 -o GWAS_HZ_lmm_lessercoverts
-#Tail Base
-gemma -bfile /workdir/jlw395/Orioles_filtered_Hybrids_output_bed -k /workdir/jlw395/output/GEMMA_HZ.cXX.txt -lmm 4 -n 8 -o GWAS_HZ_lmm_tailbase
-#Tail Tip
-gemma -bfile /workdir/jlw395/Orioles_filtered_Hybrids_output_bed -k /workdir/jlw395/output/GEMMA_HZ.cXX.txt -lmm 4 -n 9 -o GWAS_HZ_lmm_tailtip
+##
+##lmm: linear mixed model options (aslo can run lm and bslmm - do some research to identify most appropriate options for your data!)
+##lmm (cont): 1 Wald test; 2 likelihood ratio test; 3 score test; 4 all (1-3)
+##n: specify phenotype column in the phenotype file
+
+gemma -bfile /PATHtoFILENAME_output_bed -k /PATHtoFILENAME_GEMMA_HZ.cXX.txt -lmm 4 -n 1 -o OUTPUTFILE
