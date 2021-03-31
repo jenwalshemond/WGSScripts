@@ -8,7 +8,7 @@ java -Xmx96g -jar /programs/beagle4/beagle4.jar gt=FILENAME.vcf nthreads=20 out=
 vcftools --gzvcf FILENAME.vcf.gz --plink --out FILENAME_outputPlinkformat
 
 ## make .bed files
-/programs/plink-1.9-x86_64-beta5/plink --file FILENAME_outputPlinkformat --make-bed --chr-set [number of scaffolds] --allow-extra-chr 0 --out FILENAME_output_bed
+/programs/plink-1.9-x86_64-beta5/plink --file FILENAME_outputPlinkformat --make-bed --allow-extra-chr 0 --out FILENAME_output_bed
 
 ## enter phenotypic information into the .fam file
 ## KEEP TRACK OF COLUMN NUMBERS
